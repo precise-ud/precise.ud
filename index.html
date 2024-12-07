@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>precise.ud</title>
+    <link rel="icon" href="logo.ico" type="image/x-icon"> <!-- Pour un fichier .ico -->
+    <style>
+        /* Chargement des polices */
+        @font-face {
+            font-family: 'Kensmark';
+            src: url('Kensmark-03-Bold.otf') format('opentype');
+            font-weight: bold;
+        }
+
+        @font-face {
+            font-family: 'AkiraExpanded';
+            src: url('Akira Expanded Demo.otf') format('opentype');
+            font-weight: normal;
+        }
+
+        /* Style général */
+        body {
+            background-color: #2c2c2c; /* Gris foncé */
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            position: relative;
+            flex-direction: column;
+            text-align: center;
+            overflow: hidden; /* Évite que les flocons sortent de la fenêtre */
+        }
+
+        /* Barre d'annonces en haut avec effet de vague */
+        .announcement-bar {
+            width: 100%;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            position: fixed;
+            top: -60px; /* Cache la barre en dehors de l'écran */
+            left: 0;
+            z-index: 9999; /* Pour s'assurer qu'elle soit au-dessus du reste */
+            animation: slideDown 1s ease-out forwards, waveAnimation 3s infinite; /* Animation de descente et de vagues */
+            background: linear-gradient(270deg, #00c6ff, #005f99, #00c6ff); /* Dégradé bleu clair à bleu marine */
+            background-size: 200% 100%;
+            background-position: -200% 0; /* Début de l'animation */
+        }
+
+        @keyframes slideDown {
+            0% {
+                top: -60px; /* Commence en haut, en dehors de l'écran */
+            }
+            100% {
+                top: 0; /* Se place à sa position finale */
+            }
+        }
+
+        @keyframes waveAnimation {
+            0% {
+                background-position: -200% 0;
+            }
+            100% {
+                background-position: 200% 0;
+            }
+        }
+
+        .announcement-bar a {
+            color: #ffeb3b; /* Jaune pour le lien */
+            text-decoration: none;
+        }
+
+        /* Animation de vague dans un seul sens */
+        @keyframes waveAnimationText {
+            0% {
+                background-position: -200% 0;
+            }
+            100% {
+                background-position: 200% 0;
+            }
+        }
+
+        .status {
+            font-size: 40px;
+            font-weight: bold;
+            background: linear-gradient(to right, #00c6ff, #005f99, #00c6ff); /* Dégradé de bleu clair à bleu marine */
+            background-size: 200% 100%;
+            -webkit-background-clip: text; /* Applique le dégradé au texte */
+            color: transparent; /* Masque la couleur de base */
+            animation: waveAnimationText 3s infinite; /* Animation de vagues */
+            margin-top: 50px; /* Décale le texte vers le bas pour ne pas être caché par la barre d'annonces */
+            margin-bottom: 20px;
+            font-family: 'AkiraExpanded', Arial, sans-serif; /* Application de la police AkiraExpanded */
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column; /* Empile les rectangles verticalement */
+            gap: 20px; /* Espacement entre les rectangles */
+            justify-content: center;
+            position: relative;
+        }
+
+        .rectangle {
+            display: flex;
+            flex-direction: column; /* Empile le texte verticalement */
+            align-items: flex-start;
+            justify-content: flex-start;
+            background-color: #333;
+            color: white;
+            border: 2px solid black;
+            border-radius: 15px; /* Coins arrondis */
+            width: 250px;
+            height: 100px; /* Taille originale des rectangles */
+            padding: 10px;
+            position: relative; /* Pour positionner les textes */
+            transition: transform 0.3s ease-in-out; /* Animation de zoom fluide */
+        }
+
+        /* Zoom sur le rectangle au survol */
+        .rectangle:hover {
+            transform: scale(1.1); /* Agrandit le rectangle */
+        }
+
+        .point {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: green;
+            margin-right: 10px;
+        }
+
+        .point.blue {
+            background-color: #00c6ff; /* Point bleu clair */
+        }
+
+        .fortnite {
+            font-family: 'Kensmark', Arial, sans-serif; /* Application de la police Kensmark */
+            font-size: 20px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        /* Application de la police "AkiraExpanded" au texte UNDETECT */
+        .undetect {
+            display: flex;
+            align-items: center;
+            position: absolute;
+            bottom: 30px; /* Positionne le texte "UNDETECT" un peu plus haut pour faire de la place */
+            left: 10px;
+            color: green;
+            font-size: 16px;
+            font-weight: bold;
+            font-family: 'AkiraExpanded', Arial, sans-serif; /* Application de la police AkiraExpanded */
+        }
+
+        .undetect.blue {
+            color: #00c6ff; /* Couleur bleu clair */
+        }
+
+        /* Réinitialisation du font pour "LAST DETECTIONS" à la police Kensmark */
+        .last-detection {
+            position: absolute;
+            bottom: 10px; /* Positionne le texte "LAST DETECTIONS" en bas du rectangle */
+            left: 10px;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            font-family: 'Kensmark', Arial, sans-serif; /* Police Kensmark */
+        }
+
+        /* Style des flocons de neige */
+        .snowflake {
+            position: absolute;
+            color: white;
+            font-size: 24px;
+            opacity: 0; /* Initialement invisible */
+            pointer-events: none;
+            user-select: none;
+            animation: snow 10s linear infinite;
+        }
+
+        @keyframes snow {
+            0% {
+                transform: translateY(-100vh) rotate(360deg); /* Position des flocons au sommet (hors de l'écran) */
+                opacity: 1; /* Les flocons apparaissent à partir du sommet */
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg) scale(0.5); /* Les flocons tombent et rétrécissent */
+                opacity: 0; /* Les flocons disparaissent en tombant */
+            }
+        }
+
+        /* Texte en bas de la page avec dégradé de bleu et animation de vague */
+        .footer-text {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            font-family: 'Kensmark', Arial, sans-serif; /* Application de la police Kensmark */
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+            color: transparent;
+            background: linear-gradient(to right, #00c6ff, #005f99, #00c6ff); /* Dégradé bleu clair à bleu marine */
+            background-size: 200% 100%;
+            -webkit-background-clip: text; /* Applique le dégradé au texte */
+            animation: waveAnimationText 3s infinite; /* Animation de vagues */
+        }
+    </style>
+</head>
+<body>
+    <!-- Barre d'annonces avec effet de vague -->
+    <div class="announcement-bar">
+        Wanna buy? Here is our <a href="https://discord.gg/preciseud" target="_blank">Discord</a>
+    </div>
+
+    <div class="status">PRECISE STATUS</div> <!-- Texte avec animation de vague -->
+    <div class="container">
+        <div class="rectangle">
+            <div class="undetect blue">
+                <span class="point blue"></span>
+                <span>IN UPDATE</span>
+            </div>
+            <span class="fortnite">FORTNITE - PRIVATE</span>
+            <span class="last-detection">LAST DETECTIONS: IN UPDATE</span>
+        </div>
+        <div class="rectangle">
+            <div class="undetect blue">
+                <span class="point blue"></span>
+                <span>IN UPDATE</span>
+            </div>
+            <span class="fortnite">BLACK OPS 6 - CHAIR</span>
+            <span class="last-detection">LAST DETECTIONS: IN UPDATE</span>
+        </div>
+        <div class="rectangle">
+            <div class="undetect">
+                <span class="point"></span>
+                <span>UNDETECT</span>
+            </div>
+            <span class="fortnite">PERMANENT SPOOFER</span>
+            <span class="last-detection">LAST DETECTIONS: NEVER</span>
+        </div>
+        <div class="rectangle">
+            <div class="undetect">
+                <span class="point"></span>
+                <span>UNDETECT</span>
+            </div>
+            <span class="fortnite">TEMPORARY SPOOFER</span>
+            <span class="last-detection">LAST DETECTIONS: NEVER</span>
+        </div>
+    </div>
+
+    <!-- Texte en bas de la page -->
+    <div class="footer-text">
+        2024 - Made by @notdrk
+    </div>
+
+    <!-- Flocons de neige générés par JavaScript -->
+    <script>
+        // Fonction pour créer des flocons de neige
+        function createSnowflakes() {
+            const snowflakeCount = 50; // Nombre de flocons à générer
+            for (let i = 0; i < snowflakeCount; i++) {
+                const snowflake = document.createElement("div");
+                snowflake.classList.add("snowflake");
+                snowflake.innerHTML = "&#10052;"; // Symbole de flocon de neige
+
+                // Positionnement et animation aléatoire
+                snowflake.style.left = Math.random() * 100 + "vw"; // Position horizontale aléatoire
+                snowflake.style.animationDuration = Math.random() * 5 + 5 + "s"; // Durée de la chute aléatoire
+                snowflake.style.animationDelay = Math.random() * 5 + "s"; // Délai avant la chute
+
+                document.body.appendChild(snowflake);
+            }
+        }
+
+        // Crée les flocons de neige au chargement de la page
+        createSnowflakes();
+    </script>
+</body>
+</html>
